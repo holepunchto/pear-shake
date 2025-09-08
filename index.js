@@ -4,7 +4,7 @@ const pack = require('bare-pack-drive')
 const traverse = require('bare-module-traverse')
 const lex = require('bare-module-lexer')
 
-module.exports = class PearShaker {
+module.exports = class {
   constructor (drive, entrypoints) {
     this._drive = drive
     this._entrypoints = entrypoints
