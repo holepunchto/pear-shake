@@ -1,6 +1,6 @@
 {
   "name": "pear-shake",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "type": "commonjs",
   "description": "Get the dependency tree of a Pear application bundle from a drive and its entrypoints.",
