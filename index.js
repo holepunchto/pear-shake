@@ -1,8 +1,15 @@
 'use strict'
-const { overrides } = require('pear-gunk')
 const pack = require('bare-pack-drive')
 const traverse = require('bare-module-traverse')
 const lex = require('bare-module-lexer')
+
+const overrides = [
+  'pear', 'electron',
+  'crc-universal', 'quickbit-universal', 'sodium-native', 'udx-native', 'rocksdb-native',
+  'fs-native-extensions', 'assert', 'console', 'events', 'fs', 'fs/promises', 'http', 'os',
+  'path', 'child_process', 'repl', 'url', 'tty', 'module', 'process', 'timers', 'inspector',
+  'crypto', 'util'
+]
 
 module.exports = class {
   constructor (drive, entrypoints) {

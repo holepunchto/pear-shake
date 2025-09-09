@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "main": "index.js",
   "type": "commonjs",
-  "description": "Get the dependency tree of a Pear application bundle from a drive and its entrypoints.",
+  "description": "Pear application dependency static-analyzer for tree-shaking",
   "author": "Holepunch Inc",
   "license": "Apache-2.0",
   "files": [

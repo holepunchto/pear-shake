@@ -1,6 +1,6 @@
 # pear-shake
 
-> Get the dependency tree on a pear application bundle from a drive and its entrypoints.
+> Pear application dependency static-analyzer for tree-shaking.
 
 ## Usage
 
