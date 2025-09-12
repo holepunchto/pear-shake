@@ -3,12 +3,9 @@ const pack = require('bare-pack-drive')
 const traverse = require('bare-module-traverse')
 const lex = require('bare-module-lexer')
 
-const overrides = [
-  'pear', 'electron',
-  'crc-universal', 'quickbit-universal', 'sodium-native', 'udx-native', 'rocksdb-native',
-  'fs-native-extensions', 'assert', 'console', 'events', 'fs', 'fs/promises', 'http', 'os',
-  'path', 'child_process', 'repl', 'url', 'tty', 'module', 'process', 'timers', 'inspector',
-  'crypto', 'util'
+const builtins = [
+  'net', 'assert', 'console', 'events', 'fs', 'fs/promises', 'http', 'https', 'os', 'util',
+  'path', 'child_process', 'repl', 'url', 'tty', 'module', 'process', 'timers', 'inspector'
 ]
 
 module.exports = class {
@@ -23,7 +20,7 @@ module.exports = class {
 
     const files = (await Promise.all(
       entrypoints.map(async (entrypoint) => {
-        const bundle = await pack(this._drive, entrypoint, { builtins: overrides, target, resolve })
+        const bundle = await pack(this._drive, entrypoint, { builtins, target, resolve })
         return Object.keys(bundle.files)
       })
     )).flat()
