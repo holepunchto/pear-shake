@@ -5,7 +5,8 @@ const lex = require('bare-module-lexer')
 
 const builtins = [
   'net', 'assert', 'console', 'events', 'fs', 'fs/promises', 'http', 'https', 'os', 'util',
-  'path', 'child_process', 'repl', 'url', 'tty', 'module', 'process', 'timers', 'inspector'
+  'path', 'child_process', 'repl', 'url', 'tty', 'module', 'process', 'timers', 'inspector',
+  'electron'
 ]
 
 module.exports = class {
