@@ -12,13 +12,15 @@
   "scripts": {
     "test:gen": "brittle -r test/all.js test/*.test.js",
     "test": "brittle-bare --coverage test/all.js",
-    "lint": "standard"
+    "format": "prettier --write .",
+    "lint": "prettier --check ."
   },
   "devDependencies": {
     "brittle": "^3.0.0",
     "corestore": "^7.4.5",
     "hyperdrive": "^13.0.1",
-    "standard": "^17.1.2",
+    "prettier": "^3.6.2",
+    "prettier-config-holepunch": "^1.0.0",
     "test-tmp": "^1.4.0"
   },
   "dependencies": {
