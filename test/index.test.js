@@ -61,7 +61,7 @@ test('deep dependency chain', async (t) => {
   const expected = ['/root.js', '/level1.js', '/level2.js', '/level3.js']
 
   t.ok(files.length === expected.length)
-  t.ok(files.every(e => expected.includes(e)))
+  t.ok(files.every((e) => expected.includes(e)))
 })
 
 test('circular dependencies', async (t) => {

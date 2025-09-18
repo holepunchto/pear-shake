@@ -4,33 +4,63 @@ const traverse = require('bare-module-traverse')
 const lex = require('bare-module-lexer')
 
 const builtins = [
-  'net', 'assert', 'console', 'events', 'fs', 'fs/promises', 'http', 'https', 'os', 'util',
-  'path', 'child_process', 'repl', 'url', 'tty', 'module', 'process', 'timers', 'inspector',
+  'net',
+  'assert',
+  'console',
+  'events',
+  'fs',
+  'fs/promises',
+  'http',
+  'https',
+  'os',
+  'util',
+  'path',
+  'child_process',
+  'repl',
+  'url',
+  'tty',
+  'module',
+  'process',
+  'timers',
+  'inspector',
   'electron'
 ]
 
 module.exports = class {
-  constructor (drive, entrypoints) {
+  constructor(drive, entrypoints) {
     this._drive = drive
     this._entrypoints = entrypoints
   }
 
-  async run () {
+  async run() {
     const entrypoints = this._entrypoints
-    const target = ['darwin-arm64', 'darwin-x64', 'linux-arm64', 'linux-x64', 'win32-x64', 'win32-x64']
+    const target = [
+      'darwin-arm64',
+      'darwin-x64',
+      'linux-arm64',
+      'linux-x64',
+      'win32-x64',
+      'win32-x64'
+    ]
 
-    const files = (await Promise.all(
-      entrypoints.map(async (entrypoint) => {
-        const bundle = await pack(this._drive, entrypoint, { builtins, target, resolve })
-        return Object.keys(bundle.files)
-      })
-    )).flat()
+    const files = (
+      await Promise.all(
+        entrypoints.map(async (entrypoint) => {
+          const bundle = await pack(this._drive, entrypoint, {
+            builtins,
+            target,
+            resolve
+          })
+          return Object.keys(bundle.files)
+        })
+      )
+    ).flat()
 
     return Array.from(new Set([...this._entrypoints, ...files]))
   }
 }
 
-function resolve (entry, parentURL, opts = {}) {
+function resolve(entry, parentURL, opts = {}) {
   let extensions
   let conditions = opts.target.reduce((acc, host) => {
     acc.push(['node', ...host.split('-')])
