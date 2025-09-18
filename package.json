@@ -11,8 +11,9 @@
   ],
   "scripts": {
     "test:gen": "brittle -r test/all.js test/*.test.js",
-    "test": "prettier --check . && brittle-bare --coverage test/all.js",
-    "format": "prettier --write ."
+    "test": "brittle-bare --coverage test/all.js",
+    "format": "prettier --write .",
+    "lint": "prettier --check ."
   },
   "devDependencies": {
     "brittle": "^3.0.0",
