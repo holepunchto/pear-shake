@@ -1,6 +1,6 @@
 {
   "name": "pear-shake",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "index.js",
   "type": "commonjs",
   "description": "Pear application dependency static-analyzer for tree-shaking",
