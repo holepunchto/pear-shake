@@ -23,7 +23,8 @@ const builtins = [
   'process',
   'timers',
   'inspector',
-  'electron'
+  'electron',
+  'stream'
 ]
 
 module.exports = class {
