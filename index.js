@@ -24,7 +24,13 @@ const builtins = [
   'timers',
   'inspector',
   'electron',
-  'stream'
+  'stream',
+  'crypto',
+  'tls',
+  'zlib',
+  'buffer',
+  'utf-8-validate',
+  'bufferutil'
 ]
 
 module.exports = class {
