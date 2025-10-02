@@ -28,9 +28,7 @@ const builtins = [
   'crypto',
   'tls',
   'zlib',
-  'buffer',
-  'utf-8-validate',
-  'bufferutil'
+  'buffer'
 ]
 
 module.exports = class {
