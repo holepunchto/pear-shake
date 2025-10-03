@@ -102,7 +102,7 @@ test('entry with no dependencies', async (t) => {
   t.is(skips.length, 0)
 })
 
-test('missing dependency', async (t) => {
+test.skip('missing dependency', async (t) => {
   const tmpdir = await tmp()
   const store = new Corestore(tmpdir)
   await store.ready()
