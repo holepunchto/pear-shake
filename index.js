@@ -50,50 +50,38 @@ module.exports = class {
     const entrypoints = this._entrypoints
 
     const defer = opts.defer || []
+    const files = new Set()
+    const skips = []
 
-    return (
-      await Promise.all(
-        entrypoints.map(async (entrypoint) =>
-          this._traverse(entrypoint, Array.from(defer))
-        ) // pass copy of the original
-      )
-    ).reduce(
-      (acc, { files, skips }) => {
-        acc.files = Array.from(new Set(acc.files.concat(files)))
-        acc.skips = Array.from(
-          new Map(
-            acc.skips
-              .concat(skips)
-              .map((s) => [s.specifier + s.referrer.href, s])
-          ).values() // dedup skips by (specifier + referrer.href)
-        )
-        return acc
-      },
-      { files: [], skips: [] }
+    await Promise.all(
+      entrypoints.map(
+        async (entrypoint) =>
+          await this._traverse(entrypoint, Array.from(defer), files, skips)
+      ) // only pass defer by value, files and skips must be passed by reference
     )
+    return { files: [...files], skips }
   }
 
-  async _traverse(entrypoint, defer) {
-    const skips = []
-    while (true) {
-      try {
-        const bundle = await pack(this._drive, entrypoint, {
-          builtins,
-          target,
-          resolve,
-          defer
-        })
-        return { files: Object.keys(bundle.files), skips }
-      } catch (err) {
-        if (err.code !== 'MODULE_NOT_FOUND') throw err
-        if (err.referrer === null) throw err // means the entrypoint is missing, we cannot defer
-        defer.push(err.specifier)
-        skips.push({
-          specifier: err.specifier,
-          referrer: err.referrer,
-          candidates: err.candidates
-        })
-      }
+  async _traverse(entrypoint, defer, files, skips) {
+    try {
+      const bundle = await pack(this._drive, entrypoint, {
+        builtins,
+        target,
+        resolve,
+        defer
+      })
+      Object.keys(bundle.files).forEach((e) => files.add(e))
+      return true
+    } catch (err) {
+      if (err.code !== 'MODULE_NOT_FOUND') throw err
+      if (err.referrer === null) throw err // means the entrypoint is missing, we cannot defer
+      defer.push(err.specifier)
+      skips.push({
+        specifier: err.specifier,
+        referrer: err.referrer,
+        candidates: err.candidates
+      })
+      await this._traverse(entrypoint, defer, files, skips)
     }
   }
 }
