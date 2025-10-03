@@ -114,7 +114,7 @@ test('missing dependency', async (t) => {
   const pearShaker = new PearShaker(drive, ['/index.js'])
   const { files, skips } = await pearShaker.run()
   t.ok(files.includes('/index.js'))
-  t.ok(skips.includes('./missing.js'))
+  t.ok(skips.map((s) => s.specifier).includes('./missing.js'))
   t.is(skips.length, 1)
 })
 
@@ -145,9 +145,11 @@ test('returns deferred module', async (t) => {
   const { files, skips } = await pearShaker.run()
 
   t.ok(files.includes('/index.js'))
-  t.ok(skips.includes('dep'))
-  t.ok(skips.includes('dep-b'))
-  t.ok(skips.includes('dep-c'))
+  t.ok(skips.map((s) => s.specifier).includes('dep'))
+  t.ok(skips.map((s) => s.specifier).includes('dep-b'))
+  t.ok(skips.map((s) => s.specifier).includes('dep-c'))
+  t.ok(skips.every((s) => s.referrer.href === 'drive:///index.js'))
+  t.ok(skips.every((s) => s.referrer.pathname === '/index.js'))
   t.is(skips.length, 3)
 })
 
@@ -167,8 +169,10 @@ test('returns deferred module with two entrypoints', async (t) => {
   t.ok(files.includes('/foo.js'))
   t.ok(files.includes('/bar.js'))
   t.is(files.length, 2)
-  t.ok(skips.includes('dep'))
-  t.is(skips.length, 1)
+  t.ok(skips.map((s) => s.specifier).includes('dep'))
+  t.is(skips.length, 2)
+  t.ok(skips.map((s) => s.referrer.href).includes('drive:///foo.js'))
+  t.ok(skips.map((s) => s.referrer.href).includes('drive:///bar.js'))
 })
 
 test('returns multiple deferred modules with two entrypoints', async (t) => {
@@ -187,9 +191,11 @@ test('returns multiple deferred modules with two entrypoints', async (t) => {
   t.ok(files.includes('/foo.js'))
   t.ok(files.includes('/bar.js'))
   t.is(files.length, 2)
-  t.ok(skips.includes('a'))
-  t.ok(skips.includes('b'))
+  t.ok(skips.map((s) => s.specifier).includes('a'))
+  t.ok(skips.map((s) => s.specifier).includes('b'))
   t.is(skips.length, 2)
+  t.ok(skips.map((s) => s.referrer.href).includes('drive:///foo.js'))
+  t.ok(skips.map((s) => s.referrer.href).includes('drive:///bar.js'))
 })
 
 test('defers without opt', async (t) => {
@@ -208,8 +214,10 @@ test('defers without opt', async (t) => {
   t.ok(files.includes('/index.js'))
   t.ok(files.includes('/foo.js'))
   t.is(files.length, 2)
-  t.ok(skips.includes('./bar.js'))
+  t.ok(skips.map((s) => s.specifier).includes('./bar.js'))
   t.is(skips.length, 1)
+  t.ok(skips.every((s) => s.referrer.href === 'drive:///index.js'))
+  t.ok(skips.every((s) => s.referrer.pathname === '/index.js'))
 })
 
 test('defers with opt', async (t) => {
@@ -232,7 +240,5 @@ test('defers with opt', async (t) => {
   t.ok(files.includes('/index.js'))
   t.ok(files.includes('/foo.js'))
   t.ok(files.includes('/baz.js'))
-  t.is(files.length, 3)
-  t.ok(skips.includes('./bar.js'))
-  t.is(skips.length, 1)
+  t.is(skips.length, 0)
 })

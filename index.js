@@ -53,12 +53,20 @@ module.exports = class {
 
     return (
       await Promise.all(
-        entrypoints.map(async (entrypoint) => this._traverse(entrypoint, defer))
+        entrypoints.map(async (entrypoint) =>
+          this._traverse(entrypoint, Array.from(defer))
+        ) // pass copy of the original
       )
     ).reduce(
       (acc, { files, skips }) => {
         acc.files = Array.from(new Set(acc.files.concat(files)))
-        acc.skips = Array.from(new Set(acc.skips.concat(skips)))
+        acc.skips = Array.from(
+          new Map(
+            acc.skips
+              .concat(skips)
+              .map((s) => [s.specifier + s.referrer.href, s])
+          ).values() // dedup skips by (specifier + referrer.href)
+        )
         return acc
       },
       { files: [], skips: [] }
@@ -66,20 +74,25 @@ module.exports = class {
   }
 
   async _traverse(entrypoint, defer) {
-    const skips = defer
+    const skips = []
     while (true) {
       try {
         const bundle = await pack(this._drive, entrypoint, {
           builtins,
           target,
           resolve,
-          defer: skips
+          defer
         })
         return { files: Object.keys(bundle.files), skips }
       } catch (err) {
         if (err.code !== 'MODULE_NOT_FOUND') throw err
         if (err.referrer === null) throw err // means the entrypoint is missing, we cannot defer
-        skips.push(err.specifier)
+        defer.push(err.specifier)
+        skips.push({
+          specifier: err.specifier,
+          referrer: err.referrer,
+          candidates: err.candidates
+        })
       }
     }
   }
