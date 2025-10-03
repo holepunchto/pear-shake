@@ -6,7 +6,7 @@
 
 ```
 const pearShake = new PearShake(drive, entrypoints)
-const files = await treeShaker.run()
+const { files, skips } = await treeShaker.run({ defer })
 ```
 
 ## License

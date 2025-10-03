@@ -31,37 +31,57 @@ const builtins = [
   'buffer'
 ]
 
+const target = [
+  'darwin-arm64',
+  'darwin-x64',
+  'linux-arm64',
+  'linux-x64',
+  'win32-x64',
+  'win32-x64'
+]
+
 module.exports = class {
   constructor(drive, entrypoints) {
     this._drive = drive
     this._entrypoints = entrypoints
   }
 
-  async run() {
+  async run(opts = {}) {
     const entrypoints = this._entrypoints
-    const target = [
-      'darwin-arm64',
-      'darwin-x64',
-      'linux-arm64',
-      'linux-x64',
-      'win32-x64',
-      'win32-x64'
-    ]
 
-    const files = (
+    const defer = opts.defer || []
+
+    return (
       await Promise.all(
-        entrypoints.map(async (entrypoint) => {
-          const bundle = await pack(this._drive, entrypoint, {
-            builtins,
-            target,
-            resolve
-          })
-          return Object.keys(bundle.files)
-        })
+        entrypoints.map(async (entrypoint) => this._traverse(entrypoint, defer))
       )
-    ).flat()
+    ).reduce(
+      (acc, { files, skips }) => {
+        acc.files = Array.from(new Set(acc.files.concat(files)))
+        acc.skips = Array.from(new Set(acc.skips.concat(skips)))
+        return acc
+      },
+      { files: [], skips: [] }
+    )
+  }
 
-    return Array.from(new Set([...this._entrypoints, ...files]))
+  async _traverse(entrypoint, defer) {
+    const skips = defer
+    while (true) {
+      try {
+        const bundle = await pack(this._drive, entrypoint, {
+          builtins,
+          target,
+          resolve,
+          defer: skips
+        })
+        return { files: Object.keys(bundle.files), skips }
+      } catch (err) {
+        if (err.code !== 'MODULE_NOT_FOUND') throw err
+        if (err.referrer === null) throw err // means the entrypoint is missing, we cannot defer
+        skips.push(err.specifier)
+      }
+    }
   }
 }
 
