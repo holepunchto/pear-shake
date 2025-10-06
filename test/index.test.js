@@ -242,3 +242,20 @@ test('defers with opt', async (t) => {
   t.ok(files.includes('/baz.js'))
   t.is(skips.length, 0)
 })
+
+test('asset not found', async (t) => {
+  const tmpdir = await tmp()
+  const store = new Corestore(tmpdir)
+  await store.ready()
+  const drive = new Hyperdrive(store)
+  await drive.ready()
+
+  await drive.put('/index.js', 'require.asset("./asset");')
+
+  const pearShaker = new PearShaker(drive, ['/index.js'])
+  const { files, skips } = await pearShaker.run()
+
+  t.ok(files.includes('/index.js'))
+  t.is(skips.length, 1)
+  t.is(skips[0].specifier, './asset')
+})
