@@ -43,7 +43,7 @@ const target = [
 module.exports = class {
   constructor(drive, entrypoints) {
     this._drive = drive
-    this._entrypoints = entrypoints
+    this._entrypoints = [...new Set(entrypoints)]
   }
 
   async run(opts = {}) {
