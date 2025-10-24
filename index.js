@@ -72,7 +72,8 @@ module.exports = class {
       })
       for (const file of Object.keys(bundle.files)) files.add(file)
     } catch (err) {
-      if (err.code !== 'MODULE_NOT_FOUND') throw err
+      if (err.code !== 'MODULE_NOT_FOUND' && err.code !== 'ASSET_NOT_FOUND')
+        throw err
       if (err.referrer === null) throw err // means the entrypoint is missing, we cannot defer
       defer.push(err.specifier)
       skips.push({
