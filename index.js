@@ -31,7 +31,7 @@ const builtins = [
   'buffer'
 ]
 
-const target = [
+const hosts = [
   'darwin-arm64',
   'darwin-x64',
   'linux-arm64',
@@ -66,7 +66,7 @@ module.exports = class {
     try {
       const bundle = await pack(this._drive, entrypoint, {
         builtins,
-        target,
+        hosts,
         resolve,
         defer
       })
@@ -87,7 +87,7 @@ module.exports = class {
 
 function resolve(entry, parentURL, opts = {}) {
   let extensions
-  let conditions = opts.target.reduce((acc, host) => {
+  let conditions = (opts.hosts || hosts).reduce((acc, host) => {
     acc.push(['node', ...host.split('-')])
     acc.push(['node', 'bare', ...host.split('-')])
     acc.push(['module', ...host.split('-')])
@@ -101,7 +101,7 @@ function resolve(entry, parentURL, opts = {}) {
     return traverse.resolve.addon(entry.specifier || '.', parentURL, {
       extensions,
       conditions,
-      hosts: opts.target,
+      hosts: opts.hosts || hosts,
       linked: false,
       ...opts
     })
