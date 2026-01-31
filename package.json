@@ -27,7 +27,6 @@
     "bare-module-lexer": "^1.4.6",
     "bare-module-traverse": "^1.5.1",
     "bare-pack-drive": "^1.0.2",
-    "drive-bundler": "^2.5.0",
     "pear-gunk": "^1.0.0"
   }
 }

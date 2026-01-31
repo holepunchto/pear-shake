@@ -5,7 +5,7 @@ const Corestore = require('corestore')
 const tmp = require('test-tmp')
 const PearShaker = require('../')
 
-test.solo('single entrypoint', async (t) => {
+test('single entrypoint', async (t) => {
   const tmpdir = await tmp()
   const store = new Corestore(tmpdir)
   await store.ready()
@@ -24,7 +24,7 @@ test.solo('single entrypoint', async (t) => {
   t.ok(!!resolutions['/index.js'])
 })
 
-test('multiple entrypoints', async (t) => {
+test.solo('multiple entrypoints', async (t) => {
   const tmpdir = await tmp()
   const store = new Corestore(tmpdir)
   await store.ready()
