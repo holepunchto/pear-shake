@@ -2,6 +2,7 @@
 const pack = require('bare-pack-drive')
 const traverse = require('bare-module-traverse')
 const lex = require('bare-module-lexer')
+const { bundle } = require('drive-bundler')
 
 const builtins = [
   'net',
@@ -52,17 +53,24 @@ module.exports = class {
     const defer = opts.defer || []
     const files = new Set()
     const skips = []
+    const resolutions = {}
 
     await Promise.all(
       entrypoints.map(
         async (entrypoint) =>
-          await this._traverse(entrypoint, Array.from(defer), files, skips)
+          await this._traverse(
+            entrypoint,
+            Array.from(defer),
+            files,
+            skips,
+            resolutions
+          )
       ) // only pass defer by value, files and skips must be passed by reference
     )
-    return { files: [...files], skips }
+    return { files: [...files], skips, resolutions }
   }
 
-  async _traverse(entrypoint, defer, files, skips) {
+  async _traverse(entrypoint, defer, files, skips, resolutions) {
     try {
       const bundle = await pack(this._drive, entrypoint, {
         builtins,
@@ -71,6 +79,7 @@ module.exports = class {
         defer
       })
       for (const file of Object.keys(bundle.files)) files.add(file)
+      resolutions[entrypoint] = bundle.resolutions
     } catch (err) {
       if (err.code !== 'MODULE_NOT_FOUND') throw err
       if (err.referrer === null) throw err // means the entrypoint is missing, we cannot defer
@@ -80,7 +89,7 @@ module.exports = class {
         referrer: err.referrer,
         candidates: err.candidates
       })
-      await this._traverse(entrypoint, defer, files, skips)
+      await this._traverse(entrypoint, defer, files, skips, resolutions)
     }
   }
 }
