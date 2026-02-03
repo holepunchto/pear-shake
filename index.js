@@ -87,7 +87,7 @@ function resolve(entry, parentURL, opts = {}) {
   let extensions
   let conditions = (opts.hosts || hosts).reduce((acc, host) => {
     acc.push(['node', ...host.split('-')])
-    acc.push(['node', 'bare', ...host.split('-')])
+    acc.push(['bare', 'node', ...host.split('-')])
     acc.push(['module', ...host.split('-')])
     return acc
   }, [])
