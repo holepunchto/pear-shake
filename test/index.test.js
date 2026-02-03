@@ -24,7 +24,7 @@ test('single entrypoint', async (t) => {
   t.ok(!!resolutions['/index.js'])
 })
 
-test.solo('multiple entrypoints', async (t) => {
+test('multiple entrypoints', async (t) => {
   const tmpdir = await tmp()
   const store = new Corestore(tmpdir)
   await store.ready()
