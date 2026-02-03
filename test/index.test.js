@@ -16,11 +16,12 @@ test('single entrypoint', async (t) => {
   await drive.put('/dep.js', 'console.log()')
 
   const pearShaker = new PearShaker(drive, ['/index.js'])
-  const { files, skips } = await pearShaker.run()
+  const { files, skips, resolutions } = await pearShaker.run()
 
   t.ok(files.includes('/index.js'))
   t.ok(files.includes('/dep.js'))
   t.is(skips.length, 0)
+  t.ok(!!resolutions['/index.js'])
 })
 
 test('multiple entrypoints', async (t) => {
@@ -36,13 +37,15 @@ test('multiple entrypoints', async (t) => {
   await drive.put('/d.js', 'console.log("unused")')
 
   const pearShaker = new PearShaker(drive, ['/a.js', '/d.js'])
-  const { files, skips } = await pearShaker.run()
+  const { files, skips, resolutions } = await pearShaker.run()
 
   t.ok(files.includes('/a.js'))
   t.ok(files.includes('/b.js'))
   t.ok(files.includes('/c.js'))
   t.ok(files.includes('/d.js'))
   t.is(skips.length, 0)
+  t.ok(!!resolutions['/a.js'])
+  t.ok(!!resolutions['/d.js'])
 })
 
 test('deep dependency chain', async (t) => {
@@ -136,10 +139,7 @@ test('returns deferred module', async (t) => {
   const drive = new Hyperdrive(store)
   await drive.ready()
 
-  await drive.put(
-    '/index.js',
-    'require("dep");require("dep-b");require("dep-c")'
-  )
+  await drive.put('/index.js', 'require("dep");require("dep-b");require("dep-c")')
 
   const pearShaker = new PearShaker(drive, ['/index.js'])
   const { files, skips } = await pearShaker.run()
@@ -227,10 +227,7 @@ test('defers with opt', async (t) => {
   const drive = new Hyperdrive(store)
   await drive.ready()
 
-  await drive.put(
-    '/index.js',
-    'require("./foo.js"); require("./baz.js"); require("./bar.js")'
-  )
+  await drive.put('/index.js', 'require("./foo.js"); require("./baz.js"); require("./bar.js")')
   await drive.put('/foo.js', 'console.log()')
   await drive.put('/baz.js', 'console.log()')
 

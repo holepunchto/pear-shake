@@ -31,14 +31,7 @@ const builtins = [
   'buffer'
 ]
 
-const hosts = [
-  'darwin-arm64',
-  'darwin-x64',
-  'linux-arm64',
-  'linux-x64',
-  'win32-x64',
-  'win32-x64'
-]
+const hosts = ['darwin-arm64', 'darwin-x64', 'linux-arm64', 'linux-x64', 'win32-x64', 'win32-x64']
 
 module.exports = class {
   constructor(drive, entrypoints) {
@@ -52,17 +45,21 @@ module.exports = class {
     const defer = opts.defer || []
     const files = new Set()
     const skips = []
+    const resolutions = []
 
     await Promise.all(
       entrypoints.map(
         async (entrypoint) =>
-          await this._traverse(entrypoint, Array.from(defer), files, skips)
+          await this._traverse(entrypoint, Array.from(defer), files, skips, resolutions)
       ) // only pass defer by value, files and skips must be passed by reference
     )
-    return { files: [...files], skips }
+    const spreadResolutions = resolutions.reduce((acc, r) => {
+      return { ...acc, ...r }
+    }, {})
+    return { files: [...files], skips, resolutions: spreadResolutions }
   }
 
-  async _traverse(entrypoint, defer, files, skips) {
+  async _traverse(entrypoint, defer, files, skips, resolutions) {
     try {
       const bundle = await pack(this._drive, entrypoint, {
         builtins,
@@ -71,6 +68,7 @@ module.exports = class {
         defer
       })
       for (const file of Object.keys(bundle.files)) files.add(file)
+      resolutions.push(bundle.resolutions)
     } catch (err) {
       if (err.code !== 'MODULE_NOT_FOUND') throw err
       if (err.referrer === null) throw err // means the entrypoint is missing, we cannot defer
@@ -80,7 +78,7 @@ module.exports = class {
         referrer: err.referrer,
         candidates: err.candidates
       })
-      await this._traverse(entrypoint, defer, files, skips)
+      await this._traverse(entrypoint, defer, files, skips, resolutions)
     }
   }
 }

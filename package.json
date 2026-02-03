@@ -20,7 +20,7 @@
     "corestore": "^7.4.5",
     "hyperdrive": "^13.0.1",
     "prettier": "^3.6.2",
-    "prettier-config-holepunch": "^1.0.0",
+    "prettier-config-holepunch": "^2.0.0",
     "test-tmp": "^1.4.0"
   },
   "dependencies": {
